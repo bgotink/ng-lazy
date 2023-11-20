@@ -1,0 +1,5 @@
+{
+	"version": "0.2",
+	"words": ["devkit", "Bram", "Gotink", "bgotink"],
+	"ignorePaths": [".yarn/**", "dist/**", "demo/playwright/results", "yarn.lock"]
+}

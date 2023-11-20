@@ -1,0 +1,48 @@
+<div>{{ name }}</div>
+
+<div>
+	@if (isReady()) {
+		<span class="is-ready yes">Ready!</span>
+	} @else {
+		<span class="is-ready no">Not ready yet!</span>
+	}
+</div>
+
+<button class="load" (click)="load()">Load!</button>
+
+<div class="property-promise">
+	<div>Safe promise property</div>
+	<lazy-result-item [result]="safePromise()" />
+	<button (click)="refreshSafePromise()">Refresh</button>
+</div>
+<div class="property-observable">
+	<div>Safe observable property</div>
+	<lazy-result-item [result]="safeObservable()" />
+	<button (click)="refreshSafeObservable()">Refresh</button>
+</div>
+<div class="property-unsafe">
+	<div>Unsafe property</div>
+	<lazy-result-item [result]="unsafeProperty()" />
+	<button (click)="refreshUnsafeProperty()">Refresh</button>
+</div>
+
+<div class="method-promise">
+	<div>Safe promise method</div>
+	<lazy-result-item [result]="safePromiseMethod()" />
+	<button (click)="refreshSafePromiseMethod()">Refresh</button>
+</div>
+<div class="method-observable">
+	<div>Safe observable method</div>
+	<lazy-result-item [result]="safeObservableMethod()" />
+	<button (click)="refreshSafeObservableMethod()">Refresh</button>
+</div>
+<div class="method-void">
+	<div>Safe void method</div>
+	<lazy-result-item [result]="safeVoidMethod()" />
+	<button (click)="refreshSafeVoidMethod()">Refresh</button>
+</div>
+<div class="method-unsafe">
+	<div>Unsafe method</div>
+	<lazy-result-item [result]="unsafeMethod()" />
+	<button (click)="refreshUnsafeMethod()">Refresh</button>
+</div>

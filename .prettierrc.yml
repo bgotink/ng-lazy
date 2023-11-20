@@ -1,0 +1,6 @@
+# Be kind, use tabs
+useTabs: true
+
+singleQuote: true
+bracketSpacing: false
+arrowParens: avoid

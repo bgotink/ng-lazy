@@ -1,0 +1,15 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"noEmit": false,
+		"outDir": "../out-tsc/app",
+		"types": [],
+		"paths": {
+			"@bgotink/ng-lazy": ["./src/index.ts"],
+			"@bgotink/ng-lazy/*": ["./src/*.ts"]
+		}
+	},
+	"files": ["src/main.ts"],
+	"include": ["src/**/*.d.ts"]
+}

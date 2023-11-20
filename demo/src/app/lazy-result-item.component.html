@@ -1,0 +1,19 @@
+@switch (result.status) {
+	@case ('pending') {
+		<span class="status pending">Pending&hellip;</span>
+	}
+	@case ('success') {
+		<span class="status success"
+			>Success! The value is
+			<span class="value">{{ result.value | json }}</span></span
+		>
+	}
+	@case ('error') {
+		<span class="status error"
+			>Oh noes, error <span class="error">{{ result.error | json }}</span></span
+		>
+	}
+	@default {
+		<span class="status not-run">Not executed yet</span>
+	}
+}

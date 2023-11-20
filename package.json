@@ -1,0 +1,41 @@
+{
+	"name": "@bgotink/ng-lazy",
+	"type": "module",
+	"version": "0.1.0",
+	"license": "MIT",
+	"private": true,
+	"packageManager": "yarn@4.0.1",
+	"exports": {
+		"./package.json": "./package.json",
+		".": "./src/index.ts",
+		"./differential": "./src/differential.ts"
+	},
+	"peerDependencies": {
+		"@angular/core": "^17.0.2"
+	},
+	"scripts": {
+		"postinstall": "is-ci || husky install"
+	},
+	"devDependencies": {
+		"@angular-devkit/build-angular": "^17.0.0",
+		"@angular/cdk": "^17.0.0",
+		"@angular/cli": "^17.0.0",
+		"@angular/common": "^17.0.2",
+		"@angular/compiler": "^17.0.2",
+		"@angular/compiler-cli": "^17.0.2",
+		"@angular/core": "^17.0.2",
+		"@angular/language-service": "^17.0.2",
+		"@angular/platform-browser": "^17.0.2",
+		"@ngx-playwright/test": "0.4.3",
+		"@snuggery/build-angular": "^0.7.0",
+		"@types/is-ci": "^3",
+		"@types/jasmine": "^5.1.2",
+		"express-check-in": "^0.1.2",
+		"husky": "^8.0.3",
+		"is-ci": "^3.0.1",
+		"prettier": "^3.1.0",
+		"rxjs": "^7.8.1",
+		"typescript": "~5.2.2",
+		"zone.js": "^0.14.2"
+	}
+}

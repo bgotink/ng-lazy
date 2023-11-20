@@ -1,0 +1,19 @@
+{
+	"extends": "@snuggery/build-angular/tsconfig",
+	"compilerOptions": {
+		"noEmit": true,
+
+		"baseUrl": ".",
+		"strict": true,
+		"strictFunctionTypes": true,
+		"preserveConstEnums": true,
+
+		"module": "node16",
+		"moduleResolution": "node16"
+	},
+	"exclude": ["dist"],
+	"angularCompilerOptions": {
+		"strictInjectionParameters": true,
+		"strictTemplates": true
+	}
+}

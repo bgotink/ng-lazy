@@ -1,0 +1,96 @@
+{
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"cli": {
+		"analytics": false,
+		"packageManager": "yarn"
+	},
+	"projects": {
+		"library": {
+			"projectType": "library",
+			"root": ".",
+			"targets": {
+				"build": {
+					"builder": "@snuggery/build-angular:library",
+					"options": {
+						"assets": [
+							{
+								"include": ["LICENSE.md", "README.md"]
+							}
+						],
+						"tsconfig": "./tsconfig.lib.json"
+					}
+				}
+			}
+		},
+		"demo": {
+			"projectType": "application",
+			"schematics": {},
+			"root": "demo",
+			"sourceRoot": "demo/src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:application",
+					"options": {
+						"outputPath": "dist/demo",
+						"index": "demo/src/index.html",
+						"browser": "demo/src/main.ts",
+						"polyfills": ["zone.js"],
+						"tsConfig": "demo/tsconfig.app.json",
+						"assets": ["demo/src/favicon.ico"],
+						"styles": ["demo/src/styles.css"],
+						"scripts": []
+					},
+					"configurations": {
+						"production": {
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "500kb",
+									"maximumError": "1mb"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "2kb",
+									"maximumError": "4kb"
+								}
+							],
+							"outputHashing": "all"
+						},
+						"development": {
+							"optimization": false,
+							"extractLicenses": false,
+							"sourceMap": true
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"serve": {
+					"builder": "@angular-devkit/build-angular:dev-server",
+					"configurations": {
+						"production": {
+							"buildTarget": "demo:build:production"
+						},
+						"development": {
+							"buildTarget": "demo:build:development"
+						}
+					},
+					"defaultConfiguration": "development"
+				},
+				"test": {
+					"builder": "@ngx-playwright/test:run",
+					"options": {
+						"config": "demo/playwright/playwright.config.mjs",
+						"devServerTarget": "serve"
+					},
+					"configurations": {
+						"ci": {
+							"forbidOnly": true
+						}
+					}
+				}
+			}
+		}
+	}
+}
