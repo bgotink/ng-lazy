@@ -7,6 +7,7 @@ import {
 	EnvironmentInjector,
 	createEnvironmentInjector,
 	Provider,
+	OnDestroy,
 } from '@angular/core';
 
 /**
@@ -22,7 +23,7 @@ export const lazilyCreatedMarker = /** @__PURE__ */ Symbol();
 export interface LazilyCreated<T> {
 	[lazilyCreatedMarker](injector: Injector): {
 		service: T;
-		destroyable: {destroy(): void} | null;
+		destroy: () => void;
 	};
 }
 
@@ -53,16 +54,21 @@ function make<T>(
  *
  * @param type The service class to instantiate, annotated with `@Injectable`
  */
-export function createFromInjectable<T>(service: Type<T>): LazilyCreated<T> {
-	return make(injector => {
+export const createFromInjectable = <T>(service: Type<T>): LazilyCreated<T> =>
+	make(injector => {
 		const childInjector = Injector.create({
 			providers: [service],
 			parent: injector,
 		});
 
-		return {service: childInjector.get(service), destroyable: null};
+		const serviceInstance = childInjector.get(service);
+
+		return {
+			service: serviceInstance,
+			destroy: () =>
+				(serviceInstance as T & Partial<OnDestroy>).ngOnDestroy?.(),
+		};
 	});
-}
 
 /**
  * Load the given `@NgModule` decorated class as module and take the service instance from it
@@ -79,16 +85,15 @@ export function createFromInjectable<T>(service: Type<T>): LazilyCreated<T> {
  * @param module The NgModule class
  * @param token The injection token to get from the NgModule and use as service instance
  */
-export function createFromModule<T>(
+export const createFromModule = <T>(
 	module: Type<unknown>,
 	token: ProviderToken<T>,
-): LazilyCreated<T> {
-	return make(injector => {
+): LazilyCreated<T> =>
+	make(injector => {
 		const moduleRef = createNgModule(module, injector);
 		const service = moduleRef.injector.get(token);
-		return {service, destroyable: moduleRef};
+		return {service, destroy: () => moduleRef.destroy()};
 	});
-}
 
 /**
  * Create a new environment with the given providers and extract the token
@@ -105,16 +110,15 @@ export function createFromModule<T>(
  * @param providers The providers to load in a new EnvironmentInjector
  * @param token The injection token to get from the new injector and use as service instance
  */
-export function createFromEnvironment<T>(
+export const createFromEnvironment = <T>(
 	providers: (Provider | EnvironmentProviders)[],
 	token: ProviderToken<T>,
-): LazilyCreated<T> {
-	return make(injector => {
+): LazilyCreated<T> =>
+	make(injector => {
 		const childInjector = createEnvironmentInjector(
 			providers,
 			injector.get(EnvironmentInjector),
 		);
 		const service = childInjector.get(token);
-		return {service, destroyable: childInjector};
+		return {service, destroy: () => childInjector.destroy()};
 	});
-}

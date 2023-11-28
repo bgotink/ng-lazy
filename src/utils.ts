@@ -3,11 +3,15 @@ export class Deferred<T> extends Promise<T> {
 	reject!: (error: unknown) => void;
 
 	#isResolved = false;
+	#value?: T;
 
 	constructor() {
 		let res: this['resolve'], rej: this['reject'];
 		super((resolve, reject) => {
 			res = value => {
+				if (!this.#isResolved) {
+					this.#value = value;
+				}
 				this.#isResolved = true;
 				resolve(value);
 			};
@@ -23,5 +27,9 @@ export class Deferred<T> extends Promise<T> {
 
 	get isResolved(): boolean {
 		return this.#isResolved;
+	}
+
+	get value(): T | undefined {
+		return this.#value;
 	}
 }

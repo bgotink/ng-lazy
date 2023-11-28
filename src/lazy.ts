@@ -421,7 +421,7 @@ export abstract class LazyServiceLoader implements OnDestroy {
 
 		const moduleAndValuePromise = new Deferred<{
 			service: ServiceT;
-			destroyable: {destroy(): void} | null;
+			destroy: () => void;
 		}>();
 		// Browsers use a heuristic to detect whether there's something handling
 		// rejected promises, but this leads to false positives if the service
@@ -453,11 +453,11 @@ export abstract class LazyServiceLoader implements OnDestroy {
 			return valuePromise;
 
 			async function create(): Promise<ServiceT> {
-				const factoryResult = await runInInjectionContext(injector, () =>
-					serviceFactory(),
-				);
+				const creator = (
+					await runInInjectionContext(injector, () => serviceFactory())
+				)?.[lazilyCreatedMarker];
 
-				if (!factoryResult?.[lazilyCreatedMarker]) {
+				if (!creator) {
 					if (isDevMode()) {
 						throw new Error(
 							`The factory function passed into LazyServiceLoader didn't call createFromInjectable, createFromModule, or createFromEnvironment`,
@@ -467,7 +467,12 @@ export abstract class LazyServiceLoader implements OnDestroy {
 					}
 				}
 
-				const result = factoryResult[lazilyCreatedMarker](injector);
+				if (moduleAndValuePromise.isResolved) {
+					// This can only happen if the proxy service is destroyed
+					return moduleAndValuePromise as unknown as Promise<never>;
+				}
+
+				const result = creator(injector);
 				moduleAndValuePromise.resolve(result);
 				getValue = () => result.service;
 				return result.service;
@@ -497,7 +502,7 @@ export abstract class LazyServiceLoader implements OnDestroy {
 			},
 			set(_, prop, newValue) {
 				if (prop === 'ngOnDestroy') {
-					destroy = newValue as () => void;
+					throw new OperationNotSupportedError(`${prop} cannot be edited`);
 				}
 
 				if (safeProperties.has(prop)) {
@@ -532,8 +537,7 @@ export abstract class LazyServiceLoader implements OnDestroy {
 		function fakeConstructor() {}
 		fakeConstructor.prototype = Object.create(proxy);
 
-		inject(DestroyRef, {optional: true})?.onDestroy(() => destroy());
-		let destroy = () => {
+		const destroy = () => {
 			if (!this.#services.delete(proxy)) {
 				return;
 			}
@@ -541,13 +545,7 @@ export abstract class LazyServiceLoader implements OnDestroy {
 			revoke();
 
 			if (moduleAndValuePromise.isResolved) {
-				void moduleAndValuePromise.then(({destroyable, service}) => {
-					if (destroyable) {
-						destroyable.destroy();
-					} else {
-						(service as ServiceT & Partial<OnDestroy>).ngOnDestroy?.();
-					}
-				});
+				moduleAndValuePromise.value?.destroy();
 			} else {
 				moduleAndValuePromise.reject(
 					new Error(
@@ -557,14 +555,14 @@ export abstract class LazyServiceLoader implements OnDestroy {
 			}
 		};
 
+		inject(DestroyRef, {optional: true})?.onDestroy(destroy);
+
 		this.#services.set(proxy, {
 			whenReady: moduleAndValuePromise,
 			get isReady() {
 				return moduleAndValuePromise.isResolved;
 			},
-			destroy() {
-				destroy();
-			},
+			destroy,
 			async load() {
 				await getOrCreateValueAsync();
 			},
